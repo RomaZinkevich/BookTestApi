@@ -7,7 +7,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,5 +57,23 @@ public class BookController {
             BookDto bookDto = bookMapper.mapTo(bookEntity);
             return new ResponseEntity<>(bookDto, HttpStatus.OK);
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PatchMapping(path="/books/{isbn}")
+    public ResponseEntity<BookDto> partialUpdateBook(@PathVariable("isbn") String isbn, @RequestBody BookDto bookDto){
+        BookEntity bookEntity = bookMapper.mapFrom(bookDto);
+        if (!bookService.isExists(isbn)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        BookEntity updatedBook = bookService.partialUpdate(isbn, bookEntity);
+        BookDto updateBookDto = bookMapper.mapTo(updatedBook);
+        return new ResponseEntity<>(updateBookDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping(path="/books/{isbn}")
+    public ResponseEntity deleteBook(@PathVariable("isbn") String isbn){
+        bookService.delete(isbn);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
