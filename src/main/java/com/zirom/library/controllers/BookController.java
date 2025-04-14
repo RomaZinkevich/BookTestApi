@@ -2,9 +2,10 @@ package com.zirom.library.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,9 +46,9 @@ public class BookController {
     }
 
     @GetMapping(path="/books")
-    public List<BookDto> listBooks() {
-        List<BookEntity> books = bookService.findAll();
-        return books.stream().map(bookMapper::mapTo).collect(Collectors.toList());
+    public Page<BookDto> listBooks(Pageable pageable) {
+        Page<BookEntity> books = bookService.findAll(pageable);
+        return books.map(bookMapper::mapTo);
     }
 
     @GetMapping(path="/books/{isbn}")
